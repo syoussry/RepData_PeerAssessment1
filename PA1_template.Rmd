@@ -28,6 +28,11 @@ hist(totalStepsPerDay[,2],breaks=seq(from=-1,to=25000,by=2000))
 ```{r meanmedian,echo=TRUE}
 meanTotalSteps<-mean(totalStepsPerDay[,2])
 medianTotalSteps<-median(totalStepsPerDay[,2])
+```
+
+We now compute the values of the mean and median found.
+
+```{r}
 meanTotalSteps
 medianTotalSteps
 ```
@@ -35,10 +40,67 @@ medianTotalSteps
 
 ## What is the average daily activity pattern?
 
+We now aggregate the steps per interval. As we want the mean over all the days, we use the function mean provided in R, for the aggregation.
 
+```{r}
+averageStepsPerInterval<-aggregate(data2$steps~data2$interval,data=data2,FUN=mean)
+```
+
+We plot it.
+
+```{r fig.width=7, fig.height=6}
+plot(averageStepsPerInterval[,1],averageStepsPerInterval[,2],type="l")
+```
+
+Which interval contains the maximal value?
+
+```{r}
+averageStepsPerInterval[which.max(averageStepsPerInterval[,2]),1]
+```
 
 ## Imputing missing values
 
+How many missing values are there in the data?
 
+```{r}
+sum(is.na(data[,1]))
+```
+
+We replace each missing value on an interval ii by the mean of the number of steps on the interval ii on the non-missing values data.
+
+```{r}
+intervals<-unique(data[,3])
+newData<-data
+for(ii in intervals){
+  newData[newData[,3]==ii & is.na(newData[,1]),1]<-averageStepsPerInterval[averageStepsPerInterval[,1]==ii,2]
+}
+```
+
+Now, we replicate the first analysis with this brand new dataset.
+
+
+```{r meantotalnstepsperday2, echo=TRUE}
+totalStepsPerDay2<-aggregate(newData$steps~newData$date,data=newData,FUN=sum)
+```
+
+```{r fig.width=7, fig.height=6}
+hist(totalStepsPerDay2[,2],breaks=seq(from=-1,to=25000,by=2000))
+```
+
+```{r meanmedian2,echo=TRUE}
+meanTotalSteps2<-mean(totalStepsPerDay2[,2])
+medianTotalSteps2<-median(totalStepsPerDay2[,2])
+```
+
+We now compute the values of the mean and median found.
+
+```{r}
+meanTotalSteps2
+medianTotalSteps2
+```
+
+As mean and median are (almost) equal in the first part and we replace NA values by the mean, it has no effect on the final values of the new mean and median.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+
