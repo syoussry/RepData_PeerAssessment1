@@ -3,12 +3,17 @@
 
 ## Loading and preprocessing the data
 
-Set here the working directory and then load the data.
+Set here the working directory and then load the data. We also set the language to English for weekdays.
 
 
 ```r
 setwd("C:/Users/Selim/Documents/GitHub/RepData_PeerAssessment1")
 data <- read.csv("activity/activity.csv")
+Sys.setlocale("LC_TIME", "English")
+```
+
+```
+## [1] "English_United States.1252"
 ```
 
 
@@ -166,5 +171,45 @@ medianTotalSteps2
 ```
 
 
+As mean and median are (almost) equal in the first part and we replace NA values by the mean, it has no effect on the final values of the new mean and median.
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+We create levels corresponding to week or weekend days and add it to our new data.
+
+
+```r
+days <- weekdays(as.Date(data[, 2]))
+days[days == "Saturday"] <- "weekend"
+days[days == "Sunday"] <- "weekend"
+days[days != "weekend"] <- "week"
+daysFactor <- as.factor(days)
+newData[, 4] <- daysFactor
+```
+
+
+We now aggregate the steps per interval for week and weekend days.
+
+
+```r
+averageStepsPerIntervalWeek <- aggregate(newData[newData[, 4] == "week", ]$steps ~ 
+    newData[newData[, 4] == "week", ]$interval, data = newData[newData[, 4] == 
+    "week", ], FUN = mean)
+averageStepsPerIntervalWeekend <- aggregate(newData[newData[, 4] == "weekend", 
+    ]$steps ~ newData[newData[, 4] == "weekend", ]$interval, data = newData[newData[, 
+    4] == "weekend", ], FUN = mean)
+```
+
+
+We plot it.
+
+
+```r
+par(mfrow = c(2, 1))
+plot(averageStepsPerIntervalWeek[, 1], averageStepsPerIntervalWeek[, 2], type = "l")
+plot(averageStepsPerIntervalWeekend[, 1], averageStepsPerIntervalWeekend[, 2], 
+    type = "l")
+```
+
+![plot of chunk unnamed-chunk-12](figure/unnamed-chunk-12.png) 
+
